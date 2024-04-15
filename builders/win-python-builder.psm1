@@ -80,6 +80,7 @@ class WinPythonBuilder : PythonBuilder {
         $extension = $this.GetPythonExtension()
 
         $uri = "${base}/${versionName}/python-${nativeVersion}${architecture}${extension}"
+        Write-Debug "url to download $uri"
 
         return $uri
     }
