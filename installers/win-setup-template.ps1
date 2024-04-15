@@ -119,13 +119,17 @@ New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
-Write-Host "Install Python $Version in $PythonToolcachePath..."
-$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
+### Write-Host "Install Python $Version in $PythonToolcachePath..."
+### $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
 
-cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during Python installation"
-}
+### cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+### if ($LASTEXITCODE -ne 0) {
+  ###  Throw "Error happened during Python installation"
+### }
+
+Write-Host "Copy python binaries to hostedtoolcache folder"
+Copy-Item -Path * -Destination $PythonArchPath -Recurse
+Remove-Item $PythonArchPath\setup.ps1 -Force | Out-Null
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
