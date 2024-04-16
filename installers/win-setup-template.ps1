@@ -9,8 +9,8 @@ function Get-RegistryVersionFilter {
         [Parameter(Mandatory)][Int32] $MinorVersion
     )
 
-    $archFilter = if ($Architecture -eq 'x86') { "32-bit" } else { "64-bit" }
-    ### Python 2.7 x86 have no architecture postfix
+$archFilter = if ($Architecture -eq 'x86') { "32-bit" } elseif ($Architecture -eq 'x64') { "64-bit" } else { "arm64" }
+### Python 2.7 x86 have no architecture postfix
     if (($Architecture -eq "x86") -and ($MajorVersion -eq 2)) {
         "Python $MajorVersion.$MinorVersion.\d+$"
     } else {
@@ -66,6 +66,8 @@ function Get-ExecParams {
 
     if ($IsMSI) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
+    } elseif ($Architecture -eq 'arm64') {
+        "/S /D=$PythonArchPath"
     } else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
     }
@@ -119,13 +121,14 @@ New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
-### Write-Host "Install Python $Version in $PythonToolcachePath..."
-### $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
+ Write-Host "Install Python $Version in $PythonToolcachePath..."
+ $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
+ cmd.exe /c "$PythonExecName $ExecParams"
 
-### cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-### if ($LASTEXITCODE -ne 0) {
-  ###  Throw "Error happened during Python installation"
-### }
+ cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+if ($LASTEXITCODE -ne 0) {
+  Throw "Error happened during Python installation"
+ }
 
 Write-Host "Copy python binaries to hostedtoolcache folder"
 Copy-Item -Path * -Destination $PythonArchPath -Recurse
