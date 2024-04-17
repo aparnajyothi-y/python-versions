@@ -122,7 +122,21 @@ New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
- Write-Host "Install Python $Version in $PythonToolcachePath..."
+ 
+
+if ($Architecture -eq "arm64") { # Check if the Architecture is arm64
+    Write-Host "Create Python $Version folder for arm64"
+    $PythonToolcacheArchitecturePath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
+    if (-not (Test-Path $PythonToolcacheArchitecturePath)) {
+        New-Item -ItemType Directory -Path $PythonToolcacheArchitecturePath | Out-Null
+    }
+
+    Write-Host "Copy Python binaries to hostedtoolcache folder"
+    Copy-Item -Path * -Destination $PythonToolcacheArchitecturePath -Recurse
+    Remove-Item $PythonToolcacheArchitecturePath\setup.ps1 -Force | Out-Null
+}else{
+
+Write-Host "Install Python $Version in $PythonToolcachePath..."
  $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
  cmd.exe /c "$PythonExecName $ExecParams"
 
@@ -130,10 +144,7 @@ Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 if ($LASTEXITCODE -ne 0) {
   Throw "Error happened during Python installation"
  }
-
-Write-Host "Copy python binaries to hostedtoolcache folder"
-Copy-Item -Path * -Destination $PythonArchPath -Recurse
-Remove-Item $PythonArchPath\setup.ps1 -Force | Out-Null
+}
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
