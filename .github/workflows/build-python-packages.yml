@@ -159,7 +159,7 @@ jobs:
             }
             $Result = Invoke-Pester -Container $pesterContainer -PassThru
       - name: Print a statement
-        run: echo "$Result"
+        run: echo "failed count check $Result"
             if ($Result.FailedCount -gt 0) {
               $host.SetShouldExit($Result.FailedCount)
               exit $Result.FailedCount
