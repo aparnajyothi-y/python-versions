@@ -141,12 +141,12 @@ Write-Host "Install Python $Version in $PythonToolcachePath..."
  cmd.exe /c "$PythonExecName $ExecParams"
  
  cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-  if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during Python installation"
-   }
+  
  }
 
-
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during Python installation"
+   }
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
