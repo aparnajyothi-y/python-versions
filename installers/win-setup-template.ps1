@@ -134,19 +134,21 @@ if ($Architecture -eq "arm64") { # Check if the Architecture is arm64
     Write-Host "Copy Python binaries to hostedtoolcache folder"
     Copy-Item -Path * -Destination $PythonToolcacheArchitecturePath -Recurse
     Remove-Item $PythonToolcacheArchitecturePath\setup.ps1 -Force | Out-Null
-}else{
+}elseif($Architecture -in "x64", "x86"){
 
 Write-Host "Install Python $Version in $PythonToolcachePath..."
  $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
  cmd.exe /c "$PythonExecName $ExecParams"
  
  cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-  
- }
-
-if ($LASTEXITCODE -ne 0) {
+  if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
    }
+ }else{
+ Write-Host "No architecture found"
+ }
+
+
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
