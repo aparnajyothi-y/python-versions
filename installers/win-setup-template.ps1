@@ -139,12 +139,14 @@ if ($Architecture -eq "arm64") { # Check if the Architecture is arm64
 Write-Host "Install Python $Version in $PythonToolcachePath..."
  $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
  cmd.exe /c "$PythonExecName $ExecParams"
-}
-
-cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-if ($LASTEXITCODE -ne 0) {
-  Throw "Error happened during Python installation"
+ 
+ cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+  if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during Python installation"
+   }
  }
+
+
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
