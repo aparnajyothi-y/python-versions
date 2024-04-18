@@ -56,8 +56,10 @@ function Get-PythonBuilder {
         [string] $Platform
     )
 
-    if ($Platform -match 'win32') {
+    if ($Platform -match 'win32'and $Architecture -eq 'x64') {
         $builder = [WinPythonBuilder]::New($Version, $Architecture, $Platform)
+   } elseif ($Platform -match 'win32' -and $Architecture -eq 'arm64') {
+        $builder = [WinPythonBuilder]::New($Version, $Architecture, $Platform)  # Use the new class for Windows ARM64
     } elseif ($Platform -match 'linux') {
         $builder = [UbuntuPythonBuilder]::New($Version, $Architecture, $Platform)
     } elseif ($Platform -match 'darwin') {
