@@ -9,6 +9,8 @@ $stableTestCases = @(
     @{ ReleaseName = "python-3.8.3-linux-22.04-x64.tar.gz"; ExpectedResult = @{ platform = "linux"; platform_version = "22.04"; arch = "x64"} },
     @{ ReleaseName = "python-3.8.3-win32-x64.zip"; ExpectedResult = @{ platform = "win32"; platform_version = $null; arch = "x64"} },
     @{ ReleaseName = "python-3.8.3-win32-x86.zip"; ExpectedResult = @{ platform = "win32"; platform_version = $null; arch = "x86"} }
+    @{ ReleaseName = "python-3.8.3-win32-arm64.exe"; ExpectedResult = @{ platform = "win32"; platform_version = $null; arch = "arm64"} }
+
 ) | ForEach-Object { $_.Configuration = $Configuration; $_ }
 
 $unstableTestCases = @(
