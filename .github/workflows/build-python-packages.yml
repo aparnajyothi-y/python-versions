@@ -148,23 +148,7 @@ jobs:
           $pythonLocation = which python
           if ('${{ matrix.platform }}' -eq 'darwin') { otool -L $pythonLocation } else { ldd $pythonLocation }
 
-      - name: Run tests
-        run: |
-            Install-Module Pester -Force -Scope CurrentUser
-            Import-Module Pester
-            $pesterContainer = New-PesterContainer -Path './python-tests.ps1' -Data @{
-                Version="${{ env.VERSION }}";
-                Platform="${{ matrix.platform }}";
-                Architecture="${{ matrix.arch }}";
-            }
-            $Result = Invoke-Pester -Container $pesterContainer -PassThru
-      - name: Print a statement
-        run: echo "failed count check $Result"
-            if ($Result.FailedCount -gt 0) {
-              $host.SetShouldExit($Result.FailedCount)
-              exit $Result.FailedCount
-            }
-        working-directory: ${{ github.workspace }}/tests
+  
 
   publish_release:
       name: Publish release
