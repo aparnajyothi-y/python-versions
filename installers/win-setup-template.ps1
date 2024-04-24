@@ -118,8 +118,9 @@ Remove-RegistryEntries -Architecture $Architecture -MajorVersion $MajorVersion -
 Write-Host "Current Architecture is (${Architecture})..."
 
 if($Architecture -in "x64", "x86"){
-
+Write-Host "Current Architecture is (${Architecture})..."
     $IsMSI = $PythonExecName -match "msi"
+Write-Host "Current Architecture is ($IsMSI)..."
     Write-Host "Create Python $Version folder in $PythonToolcachePath"
     New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
