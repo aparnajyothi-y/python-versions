@@ -115,24 +115,11 @@ if ($null -ne $InstalledVersions) {
 
 Write-Host "Remove registry entries for Python ${MajorVersion}.${MinorVersion}(${Architecture})..."
 Remove-RegistryEntries -Architecture $Architecture -MajorVersion $MajorVersion -MinorVersion $MinorVersion
+Write-Host "Current Architecture is (${Architecture})..."
 
- 
+if($Architecture -in "x64", "x86"){
 
-if ($Architecture -eq "arm64") { 
-
-   # Check if the Architecture is arm64
-    Write-Host "Create Python $Version folder for arm64"
-    $PythonToolcacheArchitecturePath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
-    if (-not (Test-Path $PythonToolcacheArchitecturePath)) {
-        New-Item -ItemType Directory -Path $PythonToolcacheArchitecturePath | Out-Null
-    }
-
-    Write-Host "Copy Python binaries to hostedtoolcache folder"
-    Copy-Item -Path * -Destination $PythonToolcacheArchitecturePath -Recurse
-    Remove-Item $PythonToolcacheArchitecturePath\setup.ps1 -Force | Out-Null
-}elseif($Architecture -in "x64", "x86"){
-
-
+    $IsMSI = $PythonExecName -match "msi"
     Write-Host "Create Python $Version folder in $PythonToolcachePath"
     New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
@@ -147,10 +134,21 @@ if ($Architecture -eq "arm64") {
     cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
     if ($LASTEXITCODE -ne 0) {
         Throw "Error happened during Python installation"
-    }
-}else{
+        }
+    } elseif ($Architecture -eq "arm64") { 
+        # Check if the Architecture is arm64
+        Write-Host "Create Python $Version folder for arm64"
+        $PythonToolcacheArchitecturePath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
+       if (-not (Test-Path $PythonToolcacheArchitecturePath)) {
+           New-Item -ItemType Directory -Path $PythonToolcacheArchitecturePath | Out-Null
+       }
+
+       Write-Host "Copy Python binaries to hostedtoolcache folder"
+       Copy-Item -Path * -Destination $PythonToolcacheArchitecturePath -Recurse
+      Remove-Item $PythonToolcacheArchitecturePath\setup.ps1 -Force | Out-Null
+  } else{
     Write-Host "No architecture found"
-}
+  } 
 
 
 
