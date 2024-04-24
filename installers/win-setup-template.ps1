@@ -116,12 +116,6 @@ if ($null -ne $InstalledVersions) {
 Write-Host "Remove registry entries for Python ${MajorVersion}.${MinorVersion}(${Architecture})..."
 Remove-RegistryEntries -Architecture $Architecture -MajorVersion $MajorVersion -MinorVersion $MinorVersion
 
-Write-Host "Create Python $Version folder in $PythonToolcachePath"
-New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
-
-Write-Host "Copy Python binaries to $PythonArchPath"
-Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
-
  
 
 if ($Architecture -eq "arm64") { 
@@ -137,6 +131,14 @@ if ($Architecture -eq "arm64") {
     Copy-Item -Path * -Destination $PythonToolcacheArchitecturePath -Recurse
     Remove-Item $PythonToolcacheArchitecturePath\setup.ps1 -Force | Out-Null
 }elseif($Architecture -in "x64", "x86"){
+
+
+    Write-Host "Create Python $Version folder in $PythonToolcachePath"
+    New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
+
+    Write-Host "Copy Python binaries to $PythonArchPath"
+    Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
+
 
     Write-Host "Install Python $Version in $PythonToolcachePath..."
     $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
