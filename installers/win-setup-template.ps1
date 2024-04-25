@@ -58,21 +58,7 @@ function Remove-RegistryEntries {
     }
 }
 
-function Get-ExecParams {
-    param(
-        [Parameter(Mandatory)][Boolean] $IsMSI,
-        [Parameter(Mandatory)][String] $PythonArchPath,
-         [Parameter(Mandatory)][string]$Architecture
-    )
 
-    if ($IsMSI) {
-        "TARGETDIR=$PythonArchPath ALLUSERS=1"
-    } elseif ($Architecture -eq 'arm64') {
-        "/S /D=$PythonArchPath"
-    } else {
-        "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
-    }
-}
 
 $ToolcacheRoot = $env:AGENT_TOOLSDIRECTORY
 if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
@@ -119,13 +105,28 @@ Write-Host "Current Architecture is (${Architecture})..."
 
 if($Architecture -in "x64", "x86"){
 Write-Host "Current Architecture is (${Architecture})..."
-    $IsMSI = $PythonExecName -match "msi"
-Write-Host "Current Architecture is ($IsMSI)..."
+
+   function Get-ExecParams {
+    param(
+        [Parameter(Mandatory)][Boolean] $IsMSI,
+        [Parameter(Mandatory)][String] $PythonArchPath,
+         
+    )
+
+    if ($IsMSI) {
+        "TARGETDIR=$PythonArchPath ALLUSERS=1"
+    } else {
+        "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
+    }
+}
+
     Write-Host "Create Python $Version folder in $PythonToolcachePath"
     New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
     Write-Host "Copy Python binaries to $PythonArchPath"
     Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
+
+    Write-Host "Copied Python binaries to $PythonArchPath from $PythonExecName"
 
 
     Write-Host "Install Python $Version in $PythonToolcachePath..."
@@ -137,6 +138,24 @@ Write-Host "Current Architecture is ($IsMSI)..."
         Throw "Error happened during Python installation"
         }
     } elseif ($Architecture -eq "arm64") { 
+
+
+
+    function Get-ExecParams {
+    param(
+        
+        [Parameter(Mandatory)][String] $PythonArchPath,
+         [Parameter(Mandatory)][string]$Architecture
+    )
+
+           if ($Architecture -eq 'arm64') {
+               "/S /D=$PythonArchPath"
+            } else {
+              "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
+            }
+    }
+
+          
         # Check if the Architecture is arm64
         Write-Host "Create Python $Version folder for arm64"
         $PythonToolcacheArchitecturePath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
