@@ -109,7 +109,7 @@ Write-Host "Current Architecture is (${Architecture})..."
    function Get-ExecParams {
     param(
         [Parameter(Mandatory)][Boolean] $IsMSI,
-        [Parameter(Mandatory)][String] $PythonArchPath,
+        [Parameter(Mandatory)][String] $PythonArchPath
          
     )
 
