@@ -129,14 +129,13 @@ Write-Host "Current Architecture is (${Architecture})..."
     Write-Host "Copied Python binaries to $PythonArchPath from $PythonExecName"
 
 
-    Write-Host "Install Python $Version in $PythonToolcachePath..."
-    $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
-    cmd.exe /c "$PythonExecName $ExecParams"
- 
-    cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-    if ($LASTEXITCODE -ne 0) {
-        Throw "Error happened during Python installation"
-        }
+   Write-Host "Install Python $Version in $PythonToolcachePath..."
+$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
+
+cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during Python installation"
+}
     } elseif ($Architecture -eq "arm64") { 
 
 
