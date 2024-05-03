@@ -16,12 +16,18 @@ $archFilter = if ($Architecture -eq 'x86') { "32-bit" } elseif ($Architecture -e
     } else {
         "Python $MajorVersion.$MinorVersion.*($archFilter)"
     }
-if ($IsMSI) { 
+function Get-ExecParams {
+  param(
+    [bool]$IsMSI,
+    [string]$PythonArchPath
+  )
+  if ($IsMSI) { 
     return "TARGETDIR=$PythonArchPath ALLUSERS=1" 
 } elseif ($Architecture -eq "arm64") { 
     return "/S /D=$($PythonArchPath.Replace('\', '\\'))" 
 } else { 
     return "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1" 
+}
 }
 }
 
