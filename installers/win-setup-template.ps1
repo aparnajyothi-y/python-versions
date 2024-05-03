@@ -16,13 +16,13 @@ $archFilter = if ($Architecture -eq 'x86') { "32-bit" } elseif ($Architecture -e
     } else {
         "Python $MajorVersion.$MinorVersion.*($archFilter)"
     }
-if ($IsMSI) {
-            return "TARGETDIR=$PythonArchPath ALLUSERS=1"
-        } elseif ($Architecture -eq "arm64") {
-            return "/S /D=$PythonArchPath"
-        } else {
-            return "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
-        }
+if ($IsMSI) { 
+    return "TARGETDIR=$PythonArchPath ALLUSERS=1" 
+} elseif ($Architecture -eq "arm64") { 
+    return "/S /D=$($PythonArchPath.Replace('\', '\\'))" 
+} else { 
+    return "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1" 
+}
 }
 
 function Remove-RegistryEntries {
