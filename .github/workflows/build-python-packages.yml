@@ -138,9 +138,8 @@ jobs:
           architecture: ${{ matrix.arch }}
 
 
-      - name: Check Python path
-        run: |
-          where python
+      - name: Check PATH
+        run: echo $Env:PATH
 
       - name: Verbose sysconfig dump
         if: runner.os == 'Linux' || runner.os == 'macOS'
