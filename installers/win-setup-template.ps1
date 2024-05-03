@@ -168,15 +168,12 @@ if ($LASTEXITCODE -ne 0) {
        }
 
        Write-Host "Copy Python binaries to hostedtoolcache folder"
-       Copy-Item -Path * -Destination $PythonArchPath -Recurse
+      Copy-Item -Path * -Destination $PythonArchPath -Recurse
       Remove-Item $PythonArchPath\setup.ps1 -Force | Out-Null
   } else{
     Write-Host "No architecture found"
 }
-    cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams"
-    if ($LASTEXITCODE -ne 0) {
-        Throw "Error happened during Python installation"
-    }
+    
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
     New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\python.exe"
