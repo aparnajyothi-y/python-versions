@@ -16,6 +16,8 @@ $archFilter = if ($Architecture -eq 'x86') { "32-bit" } elseif ($Architecture -e
     } else {
         "Python $MajorVersion.$MinorVersion.*($archFilter)"
     }
+
+}
 function Get-ExecParams {
   param(
     [bool]$IsMSI,
@@ -29,8 +31,6 @@ function Get-ExecParams {
     return "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1" 
 }
 }
-}
-
 function Remove-RegistryEntries {
     param(
         [Parameter(Mandatory)][String] $Architecture,
