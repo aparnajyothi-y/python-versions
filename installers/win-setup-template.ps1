@@ -65,6 +65,8 @@ if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
     # GitHub images don't have `AGENT_TOOLSDIRECTORY` variable
     $ToolcacheRoot = $env:RUNNER_TOOL_CACHE
 }
+Write-Host "ToolcacheRoot : $ToolcacheRoot"
+
 $PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
 $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
@@ -77,11 +79,14 @@ $MinorVersion = $Version.Split('.')[1]
 Write-Host "Check if Python hostedtoolcache folder exist..."
 if (-Not (Test-Path $PythonToolcachePath)) {
     Write-Host "Create Python toolcache folder"
+    Write-Host "Create Python toolcache folder: $PythonToolcachePath"
     New-Item -ItemType Directory -Path $PythonToolcachePath | Out-Null
+    Write-Host "after Create Python toolcache folder: $PythonToolcachePath"
 }
 
 Write-Host "Check if current Python version is installed..."
 $InstalledVersions = Get-Item "$PythonToolcachePath\$MajorVersion.$MinorVersion.*\$Architecture"
+Write-Host "InstalledVersions: $InstalledVersions"
 
 if ($null -ne $InstalledVersions) {
     Write-Host "Python$MajorVersion.$MinorVersion ($Architecture) was found in $PythonToolcachePath..."
