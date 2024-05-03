@@ -128,10 +128,24 @@ Write-Host "Create Python $Version folder in $PythonToolcachePath"
     Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
     Write-Host "Copied Python binaries to $PythonArchPath from $PythonExecName"
-
+if($Architecture -in "x64", "x86"){
     Write-Host "Install Python $Version in $PythonToolcachePath..."
     $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
+}elseif ($Architecture -eq "arm64") { 
+          
+        # Check if the Architecture is arm64
+        Write-Host "Create Python $Version folder for arm64"
+       
+       if (-not (Test-Path $PythonArchPath)) {
+           New-Item -ItemType Directory -Path $PythonArchPath | Out-Null
+       }
 
+       Write-Host "Copy Python binaries to hostedtoolcache folder"
+       Copy-Item -Path * -Destination $PythonArchPath -Recurse
+      Remove-Item $PythonArchPath\setup.ps1 -Force | Out-Null
+  } else{
+    Write-Host "No architecture found"
+}
     cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams"
     if ($LASTEXITCODE -ne 0) {
         Throw "Error happened during Python installation"
