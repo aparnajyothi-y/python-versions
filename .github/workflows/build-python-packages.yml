@@ -137,6 +137,11 @@ jobs:
           python-version: ${{ env.VERSION }}
           architecture: ${{ matrix.arch }}
 
+
+      - name: Check Python path
+        run: |
+          where python
+
       - name: Verbose sysconfig dump
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: python ./sources/python-config-output.py
