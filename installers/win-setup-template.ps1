@@ -68,7 +68,7 @@ if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
 $PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
 $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
-
+Write-Host "PythonArchPath : $PythonArchPath"
 $IsMSI = $PythonExecName -match "msi"
 
 $MajorVersion = $Version.Split('.')[0]
@@ -157,14 +157,14 @@ if ($LASTEXITCODE -ne 0) {
           
         # Check if the Architecture is arm64
         Write-Host "Create Python $Version folder for arm64"
-        $PythonToolcacheArchitecturePath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
-       if (-not (Test-Path $PythonToolcacheArchitecturePath)) {
-           New-Item -ItemType Directory -Path $PythonToolcacheArchitecturePath | Out-Null
+        $$PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
+       if (-not (Test-Path $$PythonArchPath)) {
+           New-Item -ItemType Directory -Path $$PythonArchPath | Out-Null
        }
 
        Write-Host "Copy Python binaries to hostedtoolcache folder"
-       Copy-Item -Path * -Destination $PythonToolcacheArchitecturePath -Recurse
-      Remove-Item $PythonToolcacheArchitecturePath\setup.ps1 -Force | Out-Null
+       Copy-Item -Path * -Destination $PythonArchPath -Recurse
+      Remove-Item $PythonArchPath\setup.ps1 -Force | Out-Null
   } else{
     Write-Host "No architecture found"
   } 
