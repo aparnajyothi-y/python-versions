@@ -148,7 +148,7 @@ if ($LASTEXITCODE -ne 0) {
     )
 
            if ($Architecture -eq 'arm64') {
-               "/S /D=$PythonArchPath"
+              $env:Path +=  ";/S /D=$PythonArchPath"
             } else {
               "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
             }
