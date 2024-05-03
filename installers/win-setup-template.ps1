@@ -157,9 +157,9 @@ if ($LASTEXITCODE -ne 0) {
           
         # Check if the Architecture is arm64
         Write-Host "Create Python $Version folder for arm64"
-        $$PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
-       if (-not (Test-Path $$PythonArchPath)) {
-           New-Item -ItemType Directory -Path $$PythonArchPath | Out-Null
+       
+       if (-not (Test-Path $PythonArchPath)) {
+           New-Item -ItemType Directory -Path $PythonArchPath | Out-Null
        }
 
        Write-Host "Copy Python binaries to hostedtoolcache folder"
