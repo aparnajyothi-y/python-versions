@@ -1,3 +1,4 @@
+
 [String] $Architecture = "{{__ARCHITECTURE__}}"
 [String] $Version = "{{__VERSION__}}"
 [String] $PythonExecName = "{{__PYTHON_EXEC_NAME__}}"
@@ -9,14 +10,13 @@ function Get-RegistryVersionFilter {
         [Parameter(Mandatory)][Int32] $MinorVersion
     )
 
-$archFilter = if ($Architecture -eq 'x86') { "32-bit" } elseif ($Architecture -eq 'x64') { "64-bit" } else { "arm64" }
-### Python 2.7 x86 have no architecture postfix
+    $archFilter = if ($Architecture -eq 'x86') { "32-bit" } else { "64-bit" }
+    ### Python 2.7 x86 have no architecture postfix
     if (($Architecture -eq "x86") -and ($MajorVersion -eq 2)) {
         "Python $MajorVersion.$MinorVersion.\d+$"
     } else {
         "Python $MajorVersion.$MinorVersion.*($archFilter)"
     }
-
 }
 
 function Remove-RegistryEntries {
@@ -59,19 +59,34 @@ function Remove-RegistryEntries {
     }
 }
 
+function Get-ExecParams {
+    param(
+        [Parameter(Mandatory)][String] $InstallerType,
+        [Parameter(Mandatory)][String] $PythonArchPath
+    )
 
+    if ($InstallerType -eq "MSI") {
+        "TARGETDIR=$PythonArchPath ALLUSERS=1"
+    }
+    elseif ($InstallerType -eq "EXE") {
+        # For the EXE installer (assumed to be the Python ARM64 installer), 
+        # 'Add python.exe to Path' is recommended during the installation.
+        "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
+    }
+    else {
+        "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
+    }
+}
 
 $ToolcacheRoot = $env:AGENT_TOOLSDIRECTORY
 if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
     # GitHub images don't have `AGENT_TOOLSDIRECTORY` variable
     $ToolcacheRoot = $env:RUNNER_TOOL_CACHE
 }
-Write-Host "ToolcacheRoot : $ToolcacheRoot"
-
 $PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
 $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
-Write-Host "PythonArchPath : $PythonArchPath"
+
 $IsMSI = $PythonExecName -match "msi"
 
 $MajorVersion = $Version.Split('.')[0]
@@ -80,14 +95,11 @@ $MinorVersion = $Version.Split('.')[1]
 Write-Host "Check if Python hostedtoolcache folder exist..."
 if (-Not (Test-Path $PythonToolcachePath)) {
     Write-Host "Create Python toolcache folder"
-    Write-Host "Create Python toolcache folder: $PythonToolcachePath"
     New-Item -ItemType Directory -Path $PythonToolcachePath | Out-Null
-    Write-Host "after Create Python toolcache folder: $PythonToolcachePath"
 }
 
 Write-Host "Check if current Python version is installed..."
 $InstalledVersions = Get-Item "$PythonToolcachePath\$MajorVersion.$MinorVersion.*\$Architecture"
-Write-Host "InstalledVersions: $InstalledVersions"
 
 if ($null -ne $InstalledVersions) {
     Write-Host "Python$MajorVersion.$MinorVersion ($Architecture) was found in $PythonToolcachePath..."
@@ -107,36 +119,14 @@ if ($null -ne $InstalledVersions) {
 
 Write-Host "Remove registry entries for Python ${MajorVersion}.${MinorVersion}(${Architecture})..."
 Remove-RegistryEntries -Architecture $Architecture -MajorVersion $MajorVersion -MinorVersion $MinorVersion
-Write-Host "Current Architecture is (${Architecture})..."
 
+Write-Host "Create Python $Version folder in $PythonToolcachePath"
+New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
-if($Architecture -in "x64", "x86"){
-Write-Host "Current Architecture is (${Architecture})..."
+Write-Host "Copy Python binaries to $PythonArchPath"
+Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
-   function Get-ExecParams {
-    param(
-        [Parameter(Mandatory)][Boolean] $IsMSI,
-        [Parameter(Mandatory)][String] $PythonArchPath
-         
-    )
-
-    if ($IsMSI) {
-        "TARGETDIR=$PythonArchPath ALLUSERS=1"
-    } else {
-        "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
-    }
-}
-
-    Write-Host "Create Python $Version folder in $PythonToolcachePath"
-    New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
-
-    Write-Host "Copy Python binaries to $PythonArchPath"
-    Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
-
-    Write-Host "Copied Python binaries to $PythonArchPath from $PythonExecName"
-
-
-   Write-Host "Install Python $Version in $PythonToolcachePath..."
+Write-Host "Install Python $Version in $PythonToolcachePath..."
 $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
 
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
@@ -144,36 +134,6 @@ if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
 }
 
-
-   }elseif ($Architecture -eq "arm64") { 
-            function Get-ExecParams {
-  param(
-    [bool]$IsMSI,
-    [string]$PythonArchPath
-  )
-  if ($IsMSI) { 
-    return "TARGETDIR=$PythonArchPath ALLUSERS=1" 
-} elseif ($Architecture -eq "arm64") { 
-    return "/S /D=$($PythonArchPath.Replace('\', '\\'))" 
-} else { 
-    return "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1" 
-}
-}
-       
-        # Check if the Architecture is arm64
-        Write-Host "Create Python $Version folder for arm64"
-       
-       if (-not (Test-Path $PythonArchPath)) {
-           New-Item -ItemType Directory -Path $PythonArchPath | Out-Null
-       }
-
-       Write-Host "Copy Python binaries to hostedtoolcache folder"
-      Copy-Item -Path * -Destination $PythonArchPath -Recurse
-      Remove-Item $PythonArchPath\setup.ps1 -Force | Out-Null
-  } else{
-    Write-Host "No architecture found"
-}
-    
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
     New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\python.exe"
@@ -189,3 +149,6 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
+
+
+
