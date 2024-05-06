@@ -161,7 +161,7 @@ if ($MajorVersion -ne "2") {
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "$PythonExecName"
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
 
 Write-Host "Create complete file"
