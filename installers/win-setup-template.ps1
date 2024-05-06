@@ -91,7 +91,7 @@ $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
 # Determine installer type based on $PythonExecName
 $InstallerType = if ($PythonExecName -match "msi") { "MSI" } else { "EXE" }
-Write-Host "Install type : $InstallerType "
+
 
 
 
@@ -145,10 +145,8 @@ Write-Host "$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonAr
 
 Write-Host "$ExecParams + params"
 Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExecName $ExecParams"
-cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams"
-if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during Python installation"
-}
+cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
