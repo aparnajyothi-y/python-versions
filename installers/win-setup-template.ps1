@@ -72,6 +72,8 @@ function Get-ExecParams {
         # For the EXE installer (assumed to be the Python ARM64 installer), 
         # 'Add python.exe to Path' is recommended during the installation.
         "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
+        Write-Host "Installer type path : InstallPath"
+        
     }
     else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
@@ -89,6 +91,9 @@ $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
 # Determine installer type based on $PythonExecName
 $InstallerType = if ($PythonExecName -match "msi") { "MSI" } else { "EXE" }
+Write-Host "Install type : $InstallerType "
+
+
 
 Write-Host "Install Python $Version in $PythonToolcachePath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
