@@ -162,6 +162,11 @@ jobs:
                 Platform="${{ matrix.platform }}";
                 Architecture="${{ matrix.arch }}";
             }
+            Write-Host "Version: ${{ env.VERSION }}"
+            Write-Host "Platform: ${{ matrix.platform }}"
+            Write-Host "Architecture: ${{ matrix.arch }}"
+            Write-Host "Pester Container: $pesterContainer"
+
             $Result = Invoke-Pester -Container $pesterContainer -PassThru
             if ($Result.FailedCount -gt 0) {
               $host.SetShouldExit($Result.FailedCount)
