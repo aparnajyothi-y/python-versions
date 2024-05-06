@@ -72,7 +72,7 @@ function Get-ExecParams {
         # For the EXE installer (assumed to be the Python ARM64 installer), 
         # 'Add python.exe to Path' is recommended during the installation.
         "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
-        Write-Host "Installer type path : InstallPath"
+        Write-Host "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
         
     }
     else {
@@ -97,6 +97,9 @@ Write-Host "Install type : $InstallerType "
 
 Write-Host "Install Python $Version in $PythonToolcachePath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
+
+Write-Host "After Install Python $Version in $PythonToolcachePath : $ExecParams"
+
 
 $MajorVersion = $Version.Split('.')[0]
 $MinorVersion = $Version.Split('.')[1]
@@ -132,12 +135,14 @@ Remove-RegistryEntries -Architecture $Architecture -MajorVersion $MajorVersion -
 Write-Host "Create Python $Version folder in $PythonToolcachePath"
 New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
-Write-Host "Copy Python binaries to $PythonArchPath"
+Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
-Write-Host "Install Python $Version in $PythonToolcachePath..."
+Write-Host "Install Python $Version in $PythonArchPath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
 
+Write-Host "$ExecParams + params"
+Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
