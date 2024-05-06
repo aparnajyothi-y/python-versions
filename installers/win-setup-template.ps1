@@ -141,21 +141,27 @@ Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 Write-Host "Install Python $Version in $PythonArchPath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
 
-Write-Host "$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath."
 
-Write-Host "$ExecParams + params"
+
+
 Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExecName $ExecParams"
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+
+if (Test-Path -Path 'C:\hostedtoolcache\windows\Python\3.11.0\arm64\python-3.11.0-arm64.exe') {
+    Write-Host "Python executable found."
+} else {
+    Write-Host "Python executable not found."
+}
 
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
-    New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\python.exe"
+    New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\$PythonExecName"
 }
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "$PythonExecName"
 cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during pip installation / upgrade"
