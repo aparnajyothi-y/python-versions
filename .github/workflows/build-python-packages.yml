@@ -125,7 +125,7 @@ jobs:
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
           if ('${{ matrix.platform }}' -eq 'win32') {
-            powershell ./setup.ps1
+            powershell ./setup.ps1 -debug
             } else {
               sh ./setup.sh
               cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
