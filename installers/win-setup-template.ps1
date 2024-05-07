@@ -147,11 +147,6 @@ $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $Pyth
 Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExecName $ExecParams"
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 
-if (Test-Path -Path 'C:\hostedtoolcache\windows\Python\3.11.0\arm64\python-3.11.0-arm64.exe') {
-    Write-Host "Python executable found."
-} else {
-    Write-Host "Python executable not found."
-}
 
 
 Write-Host "Create `python3` symlink"
@@ -162,7 +157,7 @@ if ($MajorVersion -ne "2") {
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
 
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python-3.11.0-win32.arm64.exe"
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 
 if (-not (Test-Path -Path $PythonExePath)) {
     $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
