@@ -162,7 +162,6 @@ if ($MajorVersion -ne "2") {
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
 
-Write-Host "$PythonExePath : Before PythonExePath"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python-3.11.0-win32.arm64.exe"
 
 if (-not (Test-Path -Path $PythonExePath)) {
@@ -172,7 +171,7 @@ if (-not (Test-Path -Path $PythonExePath)) {
 $command1 = "$PythonExePath -m ensurepip"
 $command2 = "$PythonExePath -m pip install --upgrade pip --no-warn-script-location"
 
-cmd.exe /c "$command1 && $command2"
+cmd.exe /c "`"$command1`" && `"$command2`""
 
 
 Write-Host "cmd.exe /c "$command1 && $command2""
