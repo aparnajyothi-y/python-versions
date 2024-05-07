@@ -148,7 +148,6 @@ Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExe
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 
 
-
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
     New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\$PythonExecName"
@@ -159,9 +158,13 @@ $Env:PIP_ROOT_USER_ACTION = "ignore"
 Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName and $PythonExePath"
-& $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-locationif ($LASTEXITCODE -ne 0) {
+& $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-location
+if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during pip installation / upgrade"
 }
+
+Write-Host "Create `python` symlink"
+New-Item -ItemType SymbolicLink -Path $PythonArchPath -ChildPath "python.exe" -Target $PythonExePath
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
