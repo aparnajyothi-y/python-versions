@@ -163,14 +163,19 @@ Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
 
 Write-Host "$PythonExePath : Before PythonExePath"
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python-3.11.0-win32.arm64.exe"
 
-Write-Host "$PythonExePath : after PythonExePath"
 if (-not (Test-Path -Path $PythonExePath)) {
     $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
 }
-cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
-Write-Host "cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
+
+$command1 = "$PythonExePath -m ensurepip"
+$command2 = "$PythonExePath -m pip install --upgrade pip --no-warn-script-location"
+
+cmd.exe /c "$command1 && $command2"
+
+
+Write-Host "cmd.exe /c "$command1 && $command2""
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
