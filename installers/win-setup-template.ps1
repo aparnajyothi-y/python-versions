@@ -168,13 +168,10 @@ if (-not (Test-Path -Path $PythonExePath)) {
     $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
 }
 
-$command1 = "$PythonExePath -m ensurepip"
-$command2 = "$PythonExePath -m pip install --upgrade pip --no-warn-script-location"
-
-cmd.exe /c "`"$command1`" && `"$command2`""
+cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
 
 
-Write-Host "cmd.exe /c "$command1 && $command2""
+Write-Host "cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location" "
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
