@@ -159,8 +159,7 @@ $Env:PIP_ROOT_USER_ACTION = "ignore"
 Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName and $PythonExePath"
-cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
-if ($LASTEXITCODE -ne 0) {
+& $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-locationif ($LASTEXITCODE -ne 0) {
     Throw "Error happened during pip installation / upgrade"
 }
 
