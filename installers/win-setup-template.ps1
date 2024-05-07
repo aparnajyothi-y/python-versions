@@ -156,24 +156,13 @@ if ($MajorVersion -ne "2") {
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-
+Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-
-if (-not (Test-Path -Path $PythonExePath)) {
-    $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
+Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName and $PythonExePath"
+cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during pip installation / upgrade"
 }
-
-$command1 = "$PythonExePath -m ensurepip"
-$command2 = "$PythonExePath -m pip install --upgrade pip --no-warn-script-location"
-
-# Run the first command
-Start-Process cmd.exe -ArgumentList "/c $command1" -NoNewWindow -Wait
-Write-Host "cmd.exe -ArgumentList "/c $command1" -NoNewWindow -Wait"
-
-# Run the second command
-Start-Process cmd.exe -ArgumentList "/c $command2" -NoNewWindow -Wait
-
-Write-Host "cmd.exe -ArgumentList "/c $command1" -NoNewWindow -Wait"
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
