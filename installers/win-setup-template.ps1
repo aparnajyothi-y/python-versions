@@ -161,13 +161,17 @@ if ($MajorVersion -ne "2") {
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
+
+Write-Host "$PythonExePath : Before PythonExePath"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 
+Write-Host "$PythonExePath : after PythonExePath"
 if (-not (Test-Path -Path $PythonExePath)) {
     $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
 }
-
 cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
+Write-Host "cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade pip --no-warn-script-location"
+
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
 
