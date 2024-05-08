@@ -155,12 +155,9 @@ if ($MajorVersion -ne "2") {
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-Write-Host "pip upgrade.. $PythonArchPath and $PythonExecName to get $PythonExePath"
 & $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-location
-Write-Host "Create `python` symlink"
-New-Item -Path "$PythonArchPath\python.exe" -ItemType SymbolicLink -Value "$PythonArchPath\$PythonExecName"
+
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
