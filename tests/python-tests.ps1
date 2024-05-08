@@ -45,11 +45,6 @@ Describe "Tests" {
         $pythonLocation | Should -Not -BeNullOrEmpty
         $expectedPath = Join-Path -Path $env:RUNNER_TOOL_CACHE -ChildPath "Python"
         $pythonLocation.startsWith($expectedPath) | Should -BeTrue
-         Write-Host "Version: {Python version}"
-	Write-Host "Platform: $pythonLocation"
-	
-	Write-Host " expectedPath:$expectedPath"
-
     }
 
     It "Run simple code" {
