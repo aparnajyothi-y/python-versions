@@ -147,6 +147,8 @@ $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $Pyth
 Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExecName $ExecParams"
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 
+Write-Host "Create `python` symlink"
+New-Item -ItemType SymbolicLink -Path $PythonArchPath -ChildPath "python.exe" -Target $PythonExePath
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
@@ -160,8 +162,6 @@ $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName and $PythonExePath"
 & $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-location
 
-Write-Host "Create `python` symlink"
-New-Item -ItemType SymbolicLink -Path $PythonArchPath -ChildPath "python.exe" -Target $PythonExePath
 
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during pip installation / upgrade"
