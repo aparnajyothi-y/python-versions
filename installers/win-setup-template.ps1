@@ -139,7 +139,7 @@ Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
 Write-Host "Install Python $Version in $PythonArchPath..."
-$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
+$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath "/quiet InstallAllUsers=1 PrependPath=1" -Wait -PassThru
 
 
 
