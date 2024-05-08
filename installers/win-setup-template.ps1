@@ -148,7 +148,7 @@ Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExe
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 
 Write-Host "Create `python` symlink"
-New-Item -ItemType SymbolicLink -Path $PythonArchPath -ChildPath "python.exe" -Target $PythonExePath
+New-Item -Path "$PythonArchPath\python.exe" -ItemType SymbolicLink -Value "$PythonArchPath\$PythonExecName"
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
@@ -159,9 +159,6 @@ Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
 Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-Write-Host "Create `python` symlink"
-New-Item -ItemType SymbolicLink -Path $PythonArchPath -ChildPath "python.exe" -Target $PythonExePath
-
 Write-Host "pip upgrade.. $PythonArchPath and $PythonExecName to get $PythonExePath"
 & $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-location
 
