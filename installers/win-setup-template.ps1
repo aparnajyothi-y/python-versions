@@ -162,12 +162,6 @@ $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "pip upgrade.. $PythonArchPath and $PythonExecName to get $PythonExePath"
 & $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-location
 
-
-if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during pip installation / upgrade"
-}
-
-
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
 
