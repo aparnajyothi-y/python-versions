@@ -1,3 +1,7 @@
+[String] $Architecture = "{{__ARCHITECTURE__}}"
+[String] $Version = "{{__VERSION__}}"
+[String] $PythonExecName = "{{__PYTHON_EXEC_NAME__}}"
+
 param (
     [semver] [Parameter (Mandatory = $true)] [ValidateNotNullOrEmpty()]
     $Version,
@@ -39,11 +43,20 @@ BeforeAll {
 }
 
 Describe "Tests" {
+
+param(
+        [Parameter(Mandatory)][String] $Architecture,
+        # Join the Python version path and the architecture to create the full path
+        $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
+
+        # Get the Python executable from the full path
+        $pythonExe = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
+	
     It "Python version" {
         "python --version" | Should -ReturnZeroExitCode
         $pythonLocation = (Get-Command "python").Path
         $pythonLocation | Should -Not -BeNullOrEmpty
-        $expectedPath = Join-Path -Path $env:RUNNER_TOOL_CACHE -ChildPath "Python"
+        $expectedPath = Join-Path -Path $env:RUNNER_TOOL_CACHE -ChildPath $pythonExe
         $pythonLocation.startsWith($expectedPath) | Should -BeTrue
     }
 
