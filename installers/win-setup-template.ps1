@@ -85,7 +85,7 @@ if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
     # GitHub images don't have `AGENT_TOOLSDIRECTORY` variable
     $ToolcacheRoot = $env:RUNNER_TOOL_CACHE
 }
-$PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
+$PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath $PythonExecName
 $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
