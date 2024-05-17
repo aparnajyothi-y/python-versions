@@ -134,8 +134,8 @@ if (-Not (Test-Path $PythonPath)) {
     Throw "Python installation file $PythonExecName does not exist in $PythonArchPath"
 }
 Write-Host "Install Python $Version in $PythonArchPath..."
-$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
-cmd.exe /c "cd $PythonArchPath; $PythonExecName $ExecParams /quiet"
+$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonPath $PythonPath
+cmd.exe /c "cd $PythonPath; $PythonExecName $ExecParams /quiet"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
 }
