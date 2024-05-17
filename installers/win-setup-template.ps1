@@ -129,7 +129,10 @@ New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
 Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
-
+$PythonPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
+if (-Not (Test-Path $PythonPath)) {
+    Throw "Python installation file $PythonExecName does not exist in $PythonArchPath"
+}
 Write-Host "Install Python $Version in $PythonArchPath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
 cmd.exe /c "cd $PythonArchPath; $PythonExecName $ExecParams /quiet"
