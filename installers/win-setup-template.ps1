@@ -133,6 +133,7 @@ Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 Write-Host "Install Python $Version in $PythonArchPath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+Write-Host "After install Python $Version in $PythonArchPath...  cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet""
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
 }
