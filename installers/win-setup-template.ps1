@@ -69,12 +69,10 @@ function Get-ExecParams {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
     }
     elseif ($InstallerType -eq "EXE") {
-        # For the EXE installer (assumed to be the Python ARM64 installer), 
-        # 'Add python.exe to Path' is recommended during the installation.
-        "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
-        Write-Host "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
-        
-    }
+    $PythonExecPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
+    "InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1"
+    Write-Host "InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1"
+}
     else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
     }
@@ -134,8 +132,8 @@ if (-Not (Test-Path $PythonPath)) {
     Throw "Python installation file $PythonExecName does not exist in $PythonArchPath"
 }
 Write-Host "Install Python $Version in $PythonArchPath..."
-$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonPath $PythonPath
-cmd.exe /c "cd $PythonPath; $PythonExecName $ExecParams /quiet"
+$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
+cmd.exe /c "cd $PythonArchPath; $PythonExecName $ExecParams /quiet"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
 }
