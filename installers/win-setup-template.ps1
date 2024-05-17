@@ -1,4 +1,3 @@
-
 [String] $Architecture = "{{__ARCHITECTURE__}}"
 [String] $Version = "{{__VERSION__}}"
 [String] $PythonExecName = "{{__PYTHON_EXEC_NAME__}}"
@@ -18,6 +17,7 @@ function Get-RegistryVersionFilter {
         "Python $MajorVersion.$MinorVersion.*($archFilter)"
     }
 }
+
 
 function Remove-RegistryEntries {
     param(
@@ -80,26 +80,18 @@ function Get-ExecParams {
     }
 }
 
+
 $ToolcacheRoot = $env:AGENT_TOOLSDIRECTORY
 if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
     # GitHub images don't have `AGENT_TOOLSDIRECTORY` variable
     $ToolcacheRoot = $env:RUNNER_TOOL_CACHE
 }
-$PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath $PythonExecName
+$PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
 $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
 # Determine installer type based on $PythonExecName
 $InstallerType = if ($PythonExecName -match "msi") { "MSI" } else { "EXE" }
-
-
-
-
-Write-Host "Install Python $Version in $PythonToolcachePath..."
-$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
-
-Write-Host "After Install Python $Version in $PythonToolcachePath : $ExecParams"
-
 
 $MajorVersion = $Version.Split('.')[0]
 $MinorVersion = $Version.Split('.')[1]
@@ -135,32 +127,32 @@ Remove-RegistryEntries -Architecture $Architecture -MajorVersion $MajorVersion -
 Write-Host "Create Python $Version folder in $PythonToolcachePath"
 New-Item -ItemType Directory -Path $PythonArchPath -Force | Out-Null
 
-Write-Host "Copy Python binaries to $PythonArchPath with $PythonExecName"
+Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
-Write-Host "Install Python $Version in $PythonArchPath..."
-$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath "/quiet InstallAllUsers=1 PrependPath=1" -Wait -PassThru
+Write-Host "Install Python $Version in $PythonToolcachePath..."
+$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
 
-
-
-
-Write-Host "Command to execute: cmd.exe /c cd $PythonArchPath && call $PythonExecName $ExecParams"
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during Python installation"
+}
 
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
-    New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\$PythonExecName"
+    New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\python.exe"
 }
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-& $PythonExePath -m ensurepip; & $PythonExePath -m pip install --upgrade pip --no-warn-script-location
 
+$Env:PIP_ROOT_USER_ACTION = "ignore"
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
+cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade --force-reinstall pip --no-warn-script-location"
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during pip installation / upgrade"
+}
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
-
-
-
