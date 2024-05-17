@@ -133,7 +133,6 @@ Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 Write-Host "Install Python $Version in $PythonArchPath..."
 $ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
 cmd.exe /c "cd $PythonArchPath; $PythonExecName $ExecParams /quiet"
-Write-Host "After install Python $Version in $PythonArchPath...  cmd.exe /c "cd $PythonArchPath; call $PythonExecName $ExecParams /quiet""
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
 }
@@ -145,8 +144,6 @@ if ($MajorVersion -ne "2") {
 }
 
 Write-Host "Install and upgrade Pip"
-$Env:PIP_ROOT_USER_ACTION = "ignore"
-
 $Env:PIP_ROOT_USER_ACTION = "ignore"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade --force-reinstall pip --no-warn-script-location"
