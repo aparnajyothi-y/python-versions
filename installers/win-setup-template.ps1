@@ -70,7 +70,7 @@ function Get-ExecParams {
     }
     elseif ($InstallerType -eq "EXE") {
     $PythonExecPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-    "InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1"
+    InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1
     Write-Host "InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1"
 }
     else {
