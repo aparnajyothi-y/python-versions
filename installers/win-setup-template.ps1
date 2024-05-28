@@ -86,6 +86,8 @@ $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
 # Determine installer type based on $PythonExecName
 $InstallerType = if ($PythonExecName -match "msi") { "MSI" } else { "EXE" }
+Write-Host "Check Installertype $InstallerType "
+
 
 $MajorVersion = $Version.Split('.')[0]
 $MinorVersion = $Version.Split('.')[1]
