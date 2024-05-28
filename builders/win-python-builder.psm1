@@ -60,7 +60,9 @@ class WinPythonBuilder : PythonBuilder {
             } else {
                 $ArchitectureExtension = ".amd64"
             }
-        }
+        }elseif ($this.Architecture -eq "arm64") {
+                $ArchitectureExtension = "-arm64"
+            }
 
         return $ArchitectureExtension
     }
@@ -78,6 +80,7 @@ class WinPythonBuilder : PythonBuilder {
         $extension = $this.GetPythonExtension()
 
         $uri = "${base}/${versionName}/python-${nativeVersion}${architecture}${extension}"
+        Write-Debug "url to download $uri"
 
         return $uri
     }
