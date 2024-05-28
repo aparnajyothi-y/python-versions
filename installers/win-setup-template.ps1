@@ -61,12 +61,16 @@ function Remove-RegistryEntries {
 function Get-ExecParams {
     param(
         [Parameter(Mandatory)][Boolean] $IsMSI,
+        [Parameter(Mandatory)][Boolean] $IsEXE,
         [Parameter(Mandatory)][String] $PythonArchPath
     )
 
     if ($IsMSI) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
-    } else {
+    } elseif ($IsEXE) {
+        "TARGETDIR=$PythonArchPath ALLUSERS=1"
+
+    }else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
     }
 }
@@ -81,6 +85,7 @@ $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
 $IsMSI = $PythonExecName -match "msi"
+$IsEXE = $PythonExecName -match "exe"
 
 $MajorVersion = $Version.Split('.')[0]
 $MinorVersion = $Version.Split('.')[1]
@@ -120,12 +125,24 @@ Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
 Write-Host "Install Python $Version in $PythonToolcachePath..."
-$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
+ if ($IsMSI) {
+       $ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
+        cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+        if ($LASTEXITCODE -ne 0) {
+            Throw "Error happened during Python installation"
+        }
+    } elseif ($IsEXE) {
+      Write-Host "Installationexe $IsEXE"
+      $ExecParams = Get-ExecParams -IsEXE $IsEXE -PythonArchPath $PythonArchPath
+      Write-Host "Installation $ExecParams"
+       cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+        if ($LASTEXITCODE -ne 0) {
+            Throw "Error happened during Python installation"
+        }
+    }else {
+    Write-Host "Installation failed"
+    }
 
-cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
-if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during Python installation"
-}
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
