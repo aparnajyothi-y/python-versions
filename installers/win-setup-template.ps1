@@ -61,23 +61,19 @@ function Remove-RegistryEntries {
 
 function Get-ExecParams {
     param(
-        [Parameter(Mandatory)][String] $InstallerType,
-        [Parameter(Mandatory)][String] $PythonArchPath
+        [Parameter(Mandatory)][Boolean] $IsMSI,
+        [Parameter(Mandatory)][String] $PythonArchPath,
+        [Parameter(Mandatory)][String] $Architecture
     )
 
-    if ($InstallerType -eq "MSI") {
+    if ($IsMSI) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
-    }
-    elseif ($InstallerType -eq "EXE") {
-    $PythonExecPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-    InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1
-    Write-Host "InstallPath=$PythonExecPath AddToPath=1 InstallAllUsers=1"
-}
-    else {
+    } elseif ($Architecture -eq "arm64") {
+        "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
+    } else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
     }
 }
-
 
 $ToolcacheRoot = $env:AGENT_TOOLSDIRECTORY
 if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
@@ -132,7 +128,7 @@ if (-Not (Test-Path $PythonPath)) {
     Throw "Python installation file $PythonExecName does not exist in $PythonArchPath"
 }
 Write-Host "Install Python $Version in $PythonArchPath..."
-$ExecParams = Get-ExecParams -InstallerType $InstallerType -PythonArchPath $PythonArchPath
+$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath -Architecture $Architecture
 cmd.exe /c "cd $PythonArchPath; $PythonExecName $ExecParams /quiet"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
