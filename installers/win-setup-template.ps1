@@ -69,7 +69,7 @@ function Get-ExecParams {
     if ($IsMSI) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
     } elseif ($Architecture -eq "arm64") {
-        "InstallPath=$PythonArchPath AddToPath=1 InstallAllUsers=1"
+        "TARGETDIR=$PythonArchPath ALLUSERS=1"
     } else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
     }
