@@ -61,12 +61,13 @@ function Remove-RegistryEntries {
 function Get-ExecParams {
     param(
         [Parameter(Mandatory)][Boolean] $IsMSI,
+        [Parameter(Mandatory)][Boolean] $IsEXE,
         [Parameter(Mandatory)][String] $PythonArchPath
     )
 
-    if ($IsMSI) {
+    if ($IsMSI -or $IsEXE) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
-    } else {
+    }else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
     }
 }
@@ -80,7 +81,9 @@ $PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
 $PythonVersionPath = Join-Path -Path $PythonToolcachePath -ChildPath $Version
 $PythonArchPath = Join-Path -Path $PythonVersionPath -ChildPath $Architecture
 
-$IsMSI = $PythonExecName -match "msi"
+$IsMSI = $PythonExecName -match "\.msi$"
+$IsEXE = $PythonExecName -match "\.exe$"
+
 
 $MajorVersion = $Version.Split('.')[0]
 $MinorVersion = $Version.Split('.')[1]
@@ -120,7 +123,7 @@ Write-Host "Copy Python binaries to $PythonArchPath"
 Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
 Write-Host "Install Python $Version in $PythonToolcachePath..."
-$ExecParams = Get-ExecParams -IsMSI $IsMSI -PythonArchPath $PythonArchPath
+$ExecParams = Get-ExecParams -IsMSI $IsMSI -IsEXE $IsEXE -PythonArchPath $PythonArchPath
 
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 if ($LASTEXITCODE -ne 0) {
