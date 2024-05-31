@@ -33,11 +33,8 @@ class WinPythonBuilder : PythonBuilder {
     ) : Base($version, $architecture, $platform) {
         $this.InstallationTemplateName = "win-setup-template.ps1"
         $this.InstallationScriptName = "setup.ps1"
-        
-        # Determine file extension based on architecture
-        $fileExtension = if ($architecture -eq 'x64') { ".zip" } else { ".exe" }
-        
-        $this.OutputArtifactName = "python-$Version-$Platform-$Architecture$fileExtension"
+         $this.OutputArtifactName = "python-$Version-$Platform-$Architecture.zip"
+       
     }
     
    [string] GetPythonExtension() {
