@@ -133,19 +133,17 @@ jobs:
           }
         working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
-      - name: List files in current directory
-        run: Get-ChildItem -Path .\
-
       - name: Apply build artifact to the local machine
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
           if ('${{ matrix.platform }}' -eq 'win32') {
-            pwsh -File "$PSHOME/setup.ps1"
-          } else {
-            sh ./setup.sh
-            cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
-          }
+            powershell ./setup.ps1
+            } else {
+              sh ./setup.sh
+              cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
+            }
         working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
+
         
       - name: Setup Python ${{ env.VERSION }}
         uses: actions/setup-python@v5
