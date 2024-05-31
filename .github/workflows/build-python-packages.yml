@@ -140,13 +140,13 @@ jobs:
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
           if ('${{ matrix.platform }}' -eq 'win32') {
-            powershell ./setup.ps1
-            } else {
-              sh ./setup.sh
-              cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
-            }
+            pwsh -File "$PSHOME/setup.ps1"
+          } else {
+            sh ./setup.sh
+            cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
+          }
         working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
-
+        
       - name: Setup Python ${{ env.VERSION }}
         uses: actions/setup-python@v5
         with:
