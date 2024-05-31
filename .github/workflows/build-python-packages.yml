@@ -132,6 +132,10 @@ jobs:
             tar -xzf $artifactName
           }
         working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
+
+      - name: List files in current directory
+        run: Get-ChildItem -Path .\
+
       - name: Apply build artifact to the local machine
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
