@@ -40,16 +40,14 @@ class WinPythonBuilder : PythonBuilder {
         $this.OutputArtifactName = "python-$Version-$Platform-$Architecture$fileExtension"
     }
     
-        [string] GetPythonExtension() {
+   [string] GetPythonExtension() {
         <#
         .SYNOPSIS
         Return extension for required version of Python executable. 
         #>
-    
-        $extension = if ($this.Version -lt "3.5" -and $this.Version -ge "2.5") { ".msi" } 
-                      elseif ($this.Version -gt "3.8") { ".msi" } 
-                      else { ".exe" }
-    
+
+        $extension = if ($this.Version -lt "3.5" -and $this.Version -ge "2.5") { ".msi" } else { ".exe" }
+
         return $extension
     }
 
