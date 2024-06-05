@@ -138,6 +138,15 @@ Write-Host "Install Python $Version in $PythonToolcachePath... PythonExecName : 
 # Define the full path to the Python executable
 $PythonExecFullPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "Directory PythonExecFullPath : $PythonExecFullPath "
+
+# Add Get-ChildItem lines to list the contents of the directories
+Write-Host "Listing contents of C:\hostedtoolcache\windows\Python\3.12.3:"
+Get-ChildItem "C:\hostedtoolcache\windows\Python\3.12.3"
+
+Write-Host "Listing contents of C:\hostedtoolcache\windows\Python\3.12.3\arm64:"
+Get-ChildItem "C:\hostedtoolcache\windows\Python\3.12.3\arm64"
+
+
 # Check if the Python executable directory exists
 if (Test-Path -Path $PythonExecFullPath) {
     Write-Host "Directory $PythonExecFullPath exists."
