@@ -59,7 +59,7 @@ function Remove-RegistryEntries {
 }
 
 function Get-ExecParams {
-    param(
+     param(
         [Parameter(Mandatory)][Boolean] $IsMSI,
         [Parameter(Mandatory)][Boolean] $IsEXE,
         [Parameter(Mandatory)][String] $PythonArchPath
@@ -74,8 +74,8 @@ function Get-ExecParams {
     }else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
              Write-Host "Inside else of Get-ExecParams"
-
     }
+
 }
 
 $ToolcacheRoot = $env:AGENT_TOOLSDIRECTORY
@@ -83,6 +83,7 @@ if ([string]::IsNullOrEmpty($ToolcacheRoot)) {
     # GitHub images don't have `AGENT_TOOLSDIRECTORY` variable
     $ToolcacheRoot = $env:RUNNER_TOOL_CACHE
 }
+
 $PythonToolcachePath = Join-Path -Path $ToolcacheRoot -ChildPath "Python"
 Write-Host "PythonToolcachePath $PythonToolcachePath"
 
@@ -140,8 +141,6 @@ Write-Host "Install Python $Version in $PythonToolcachePath..."
 $ExecParams = Get-ExecParams -IsMSI $IsMSI -IsEXE $IsEXE -PythonArchPath $PythonArchPath
 Write-Host "Install Python $Version in $PythonToolcachePath... ExecParams : $ExecParams"
 Write-Host "Install Python $Version in $PythonToolcachePath... PythonExecName : $PythonExecName"
-
-
 cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
