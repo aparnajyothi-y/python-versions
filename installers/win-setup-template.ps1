@@ -63,9 +63,8 @@ function Get-ExecParams {
         [Parameter(Mandatory)][Boolean] $IsMSI,
         [Parameter(Mandatory)][Boolean] $IsEXE,
         [Parameter(Mandatory)][String] $PythonArchPath
+  )
        Write-Host "Get-ExecParams IsMSI $IsMSI, IsEXE $IsEXE, PythonArchPath $PythonArchPath"
-
-    )
 
     if ($IsMSI -or $IsEXE) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
