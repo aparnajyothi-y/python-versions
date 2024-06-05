@@ -137,7 +137,7 @@ Write-Host "Install Python $Version in $PythonToolcachePath... PythonExecName : 
 
 # Define the full path to the Python executable
 $PythonExecFullPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
-
+Write-Host "Directory PythonExecFullPath : $PythonExecFullPath "
 # Check if the Python executable directory exists
 if (Test-Path -Path $PythonExecFullPath -PathType Container) {
     Write-Host "Directory $PythonExecFullPath exists."
