@@ -120,13 +120,9 @@ jobs:
       - name: Extract files
         run: |
           if ('${{ matrix.platform }}' -eq 'win32') {
-            if ('${{ matrix.architecture }}' -eq 'x64') {
               $artifactName = "${{ env.ARTIFACT_NAME }}.zip"
               7z.exe x "$artifactName" -y | Out-Null
-            } elseif ('${{ matrix.architecture }}' -eq 'arm64') {
-              $artifactName = "${{ env.ARTIFACT_NAME }}.exe"
-              Start-Process $exeArtifactName -Wait
-            }
+          
           } else {
             $artifactName = "${{ env.ARTIFACT_NAME }}.tar.gz"
             tar -xzf $artifactName
