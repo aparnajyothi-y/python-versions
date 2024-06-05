@@ -135,7 +135,18 @@ $ExecParams = Get-ExecParams -IsMSI $IsMSI -IsEXE $IsEXE -PythonArchPath $Python
 Write-Host "Install Python $Version in $PythonToolcachePath... ExecParams : $ExecParams"
 Write-Host "Install Python $Version in $PythonToolcachePath... PythonExecName : $PythonExecName"
 
-cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+# Define the full path to the Python executable
+$PythonExecFullPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
+
+# Check if the Python executable directory exists
+if (Test-Path -Path $PythonExecFullPath -PathType Container) {
+    Write-Host "Directory $PythonExecFullPath exists."
+    cmd.exe /c "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+}
+else {
+    Write-Host "Directory $PythonExecFullPath does not exist."
+
+}
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during Python installation"
 }
