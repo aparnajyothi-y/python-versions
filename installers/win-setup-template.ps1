@@ -153,7 +153,7 @@ Get-ChildItem "C:\hostedtoolcache\windows\Python\3.12.3\arm64"
 if (Test-Path -Path $PythonExecFullPath) {
     Write-Host "Directory $PythonExecFullPath exists."
 
-    $Installerpath = "cd $PythonArchPath && call $PythonExecName $ExecParams /quiet"
+    $Installerpath = "cd $PythonArchPath && call $PythonExecName $ExecParams"
     
     # Print the Installerpath
     Write-Host "Installerpath: $Installerpath"
