@@ -168,12 +168,12 @@ else {
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
-    New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\python.exe"
+    New-Item -Path "$PythonArchPath\python3.exe" -ItemType SymbolicLink -Value "$PythonArchPath\$PythonExecName"
 }
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade --force-reinstall pip --no-warn-script-location"
 if ($LASTEXITCODE -ne 0) {
     Throw "Error happened during pip installation / upgrade"
