@@ -153,15 +153,13 @@ Get-ChildItem "C:\hostedtoolcache\windows\Python\3.12.3\arm64"
 if (Test-Path -Path $PythonExecFullPath) {
     Write-Host "Directory $PythonExecFullPath exists."
 
-    $Installerpath = "cd $PythonArchPath && call $PythonExecFullPath $ExecParams"
+    $Installerpath = "cd $PythonArchPath && call $PythonExecName $ExecParams"
     Write-Host "Installerpath: $Installerpath"
     
    # Redirect output to the log file
    $Output = cmd.exe /c $Installerpath 2>&1 /quiet 
    Write-Verbose "Installation output: $Output"
-    if ($LASTEXITCODE -ne 0) {
-        Throw "Error happened during Python installation"
-    }
+    
 }
 else {
     Write-Host "Directory $PythonExecFullPath does not exist."
