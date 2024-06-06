@@ -135,8 +135,8 @@ Copy-Item -Path ./$PythonExecName -Destination $PythonArchPath | Out-Null
 
 Write-Host "Install Python $Version in $PythonToolcachePath..."
 $ExecParams = Get-ExecParams -IsMSI $IsMSI -IsEXE $IsEXE -PythonArchPath $PythonArchPath
-Write-Host "Install Python $Version in $PythonToolcachePath... ExecParams : $ExecParams"
-Write-Host "Install Python $Version in $PythonToolcachePath... PythonExecName : $PythonExecName"
+Write-Host "Install Python $Version in $PythonArchPath... ExecParams : $ExecParams"
+Write-Host "Install Python $Version in $PythonArchPath... PythonExecName : $PythonExecName"
 
 # Define the full path to the Python executable
 $PythonExecFullPath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
