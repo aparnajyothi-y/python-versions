@@ -154,20 +154,11 @@ if (Test-Path -Path $PythonExecFullPath) {
     Write-Host "Directory $PythonExecFullPath exists."
 
     $Installerpath = "cd $PythonArchPath && call $PythonExecName $ExecParams"
-    
-    # Print the Installerpath
     Write-Host "Installerpath: $Installerpath"
-    # Get the path to the current directory (where the script is located)
-    $ScriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
-    Write-Host "ScriptDirectory: $ScriptDirectory"
-
-    # Specify the relative path to the log file within the repository directory
-    $LogFilePath = Join-Path -Path $ScriptDirectory -ChildPath "install_log.txt"
-    Write-Host "LogFilePath: $LogFilePath"
-
+    
    # Redirect output to the log file
-   $Output = cmd.exe /c $Installerpath 2>&1 /quiet >> $LogFilePath
-   
+   $Output = cmd.exe /c $Installerpath 2>&1 /quiet 
+   Write-Verbose "Installation output: $Output"
     if ($LASTEXITCODE -ne 0) {
         Throw "Error happened during Python installation"
     }
