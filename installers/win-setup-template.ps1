@@ -66,10 +66,13 @@ function Get-ExecParams {
     )
      Write-Host "Get-ExecParams IsMSI $IsMSI, IsEXE $IsEXE, PythonArchPath $PythonArchPath"
 
-
     if ($IsMSI) {
         "TARGETDIR=$PythonArchPath ALLUSERS=1"
          Write-Host "Inside if of Get-ExecParams"
+
+    }elseif ($IsEXE) {
+         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1 PrependPath=1 Include_test=0"
+         Write-Host "Inside elseif of Get-ExecParams"
 
     } else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
