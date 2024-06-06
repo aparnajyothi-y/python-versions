@@ -71,7 +71,8 @@ function Get-ExecParams {
          Write-Host "Inside if of Get-ExecParams"
 
     }elseif ($IsEXE) {
-      "InstallLauncherAllUsers=1 TargetDir=$PythonArchPath PrependPath=1 Shortcuts=0 Include_test=0 InstallAllUsers=1 CompileAll=0"         Write-Host "Inside elseif of Get-ExecParams"
+      "InstallLauncherAllUsers=1 TargetDir=$PythonArchPath PrependPath=1 Shortcuts=0 Include_test=0 InstallAllUsers=1 CompileAll=0"   
+       Write-Host "Inside elseif of Get-ExecParams"
 
     } else {
         "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1"
@@ -149,7 +150,6 @@ Write-Host "Listing contents of C:\hostedtoolcache\windows\Python\3.12.3\arm64:"
 Get-ChildItem "C:\hostedtoolcache\windows\Python\3.12.3\arm64"
 
 
-# Check if the Python executable directory exists
 if (Test-Path -Path $PythonExecFullPath) {
     Write-Host "Directory $PythonExecFullPath exists."
 
@@ -168,10 +168,7 @@ if (Test-Path -Path $PythonExecFullPath) {
 }
 else {
     Write-Host "Directory $PythonExecFullPath does not exist."
-
-}
-if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during Python installation"
+    Throw "Error: Directory $PythonExecFullPath does not exist."
 }
 
 Write-Host "Create `python3` symlink"
