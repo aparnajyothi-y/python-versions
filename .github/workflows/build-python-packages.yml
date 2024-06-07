@@ -59,8 +59,8 @@ jobs:
           }
           echo "matrix=$($matrix | ConvertTo-Json -Compress -AsArray)" >> $env:GITHUB_OUTPUT
           
-      - name: Add 7z to PATH
-        run: echo "C:\Program Files\7-Zip" >> $GITHUB_PATH
+     
+          echo "C:\Program Files\7-Zip" >> $GITHUB_PATH
         
   build_python:
     needs: generate_matrix
