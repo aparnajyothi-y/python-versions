@@ -79,7 +79,7 @@ jobs:
           submodules: true
           
       - name: Add 7z to PATH
-        run: echo "C:\Program Files\7-Zip" >> $GITHUB_PATH
+        run: echo "C:\Program Files (x86)\7-Zip" >> $GITHUB_PATH
         
       - name: Build Python ${{ env.VERSION }}
         run: |
