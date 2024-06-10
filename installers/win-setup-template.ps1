@@ -159,10 +159,7 @@ if (Test-Path -Path $PythonExecFullPath) {
    # Redirect output to the log file
    $Output = cmd.exe /c $Installerpath 2>&1 /quiet 
    Write-Verbose "Installation output: $Output"
-   if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during Python installation"
-   }
-
+   
 }
 else {
     Write-Host "Directory $PythonExecFullPath does not exist."
@@ -176,13 +173,11 @@ if ($MajorVersion -ne "2") {
 
 Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
-$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath "python.exe"
+$PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "Install and upgrade Pip : $PythonExePath"
 cmd.exe /c "$PythonExePath -m ensurepip"
 cmd.exe /c "$PythonExePath -m pip install --upgrade --force-reinstall pip --no-warn-script-location"
-if ($LASTEXITCODE -ne 0) {
-    Throw "Error happened during pip installation / upgrade"
-}
+
 
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
