@@ -71,7 +71,7 @@ function Get-ExecParams {
          Write-Host "Inside if of Get-ExecParams"
 
     }elseif ($IsEXE) {
-      "TargetDir=$PythonArchPath PrependPath=1 Include_test=0 ALLUSERS=1 Include_pip=1 "
+      "TargetDir=$PythonArchPath Include_test=0 ALLUSERS=1 Include_pip=1 "
        Write-Host "Inside elseif of Get-ExecParams"
 
     } else {
