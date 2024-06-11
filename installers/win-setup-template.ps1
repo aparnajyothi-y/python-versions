@@ -71,7 +71,7 @@ function Get-ExecParams {
          Write-Host "Inside if of Get-ExecParams"
 
     }elseif ($IsEXE) {
-      "DefaultAllUsersTargetDir=$PythonArchPath InstallAllUsers=1 PrependPath=1 Include_pip=1 /quiet"
+      "TARGETDIR=$PythonArchPath InstallAllUsers=1 PrependPath=1 Include_pip=1"
        Write-Host "Inside elseif of Get-ExecParams"
 
     } else {
@@ -175,6 +175,6 @@ Write-Host "Install and upgrade Pip"
 $Env:PIP_ROOT_USER_ACTION = "ignore"
 $PythonExePath = Join-Path -Path $PythonArchPath -ChildPath $PythonExecName
 Write-Host "Install and upgrade Pip : $PythonExePath"
-cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade --force-reinstall pip --no-warn-script-location /quiet"
+cmd.exe /c "$PythonExePath -m ensurepip && $PythonExePath -m pip install --upgrade --force-reinstall pip --no-warn-script-location --no-input /quiet"
 Write-Host "Create complete file"
 New-Item -ItemType File -Path $PythonVersionPath -Name "$Architecture.complete" | Out-Null
