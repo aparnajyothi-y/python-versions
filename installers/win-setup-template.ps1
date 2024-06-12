@@ -159,6 +159,11 @@ if (Test-Path -Path $PythonExecFullPath) {
    # Redirect output to the log file
    $Output = cmd.exe /c $Installerpath 2>&1 /quiet 
    Write-Verbose "Installation output: $Output"
+
+   Start-Process -FilePath "$PythonArchPath\$PythonExecName" -ArgumentList $ExecParams, "/quiet" -NoNewWindow -Wait
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during Python installation"
+}
    
 }
 else {
