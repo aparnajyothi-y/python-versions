@@ -156,32 +156,21 @@ if (Test-Path -Path $PythonExecFullPath) {
     $Installerpath = "cd $PythonArchPath && call $PythonExecName $ExecParams"
     Write-Host "Installerpath: $Installerpath"
     
-    # Redirect output to the log file
-    $Output = cmd.exe /c $Installerpath 2>&1 /quiet 
-    Write-Verbose "Installation output: $Output"
+   # Redirect output to the log file
+   $Output = cmd.exe /c $Installerpath 2>&1 /quiet 
+   Write-Verbose "Installation output: $Output"
 
-    # Start the installer process
-    $installerProcess = Start-Process -FilePath "$PythonArchPath\$PythonExecName" -ArgumentList $ExecParams, "/quiet" -NoNewWindow -PassThru
-
-    # Set a timeout for the installer
-    $timeout = [DateTime]::Now.AddMinutes(10)
-
-    # Wait for the installer process to exit or for the timeout to be reached
-    while (($installerProcess.HasExited -eq $false) -and ([DateTime]::Now -lt $timeout)) {
-        Start-Sleep -Seconds 10
-    }
-
-    # Check if the installer process is still running after the timeout
-    if ($installerProcess.HasExited -eq $false) {
-        $installerProcess | Stop-Process -Force
-        Throw "Python installation timed out"
-    } elseif ($installerProcess.ExitCode -ne 0) {
-        Throw "Error happened during Python installation"
-    }
-} else {
+   Start-Process -FilePath "$PythonArchPath\$PythonExecName" -ArgumentList $ExecParams, "/quiet" -NoNewWindow -Wait
+if ($LASTEXITCODE -ne 0) {
+    Throw "Error happened during Python installation"
+}
+   
+}
+else {
     Write-Host "Directory $PythonExecFullPath does not exist."
     Throw "Error: Directory $PythonExecFullPath does not exist."
 }
+
 
 Write-Host "Create `python3` symlink"
 if ($MajorVersion -ne "2") {
