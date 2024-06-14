@@ -62,7 +62,7 @@ class WinPythonBuilder : PythonBuilder {
                 $ArchitectureExtension = ".amd64"
             }
         }elseif ($this.Architecture -eq "arm64") {
-                $ArchitectureExtension = "arm64"
+                $ArchitectureExtension = "-arm64"
             }
 
         return $ArchitectureExtension
