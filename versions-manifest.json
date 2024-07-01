@@ -54,13 +54,13 @@
   {
     "version": "3.8.10",
     "stable": true,
-    "release_url": "https://github.com/aparnajyothi-y/python-versions/releases/tag/3.8.10-9739510043",
+    "release_url": "https://github.com/aparnajyothi-y/python-versions/releases/tag/3.8.10-9739821431",
     "files": [
       {
         "filename": "python-3.8.10-darwin-arm64.tar.gz",
         "arch": "arm64",
         "platform": "darwin",
-        "download_url": "https://github.com/aparnajyothi-y/python-versions/releases/download/3.8.10-9739510043/python-3.8.10-darwin-arm64.tar.gz"
+        "download_url": "https://github.com/aparnajyothi-y/python-versions/releases/download/3.8.10-9739821431/python-3.8.10-darwin-arm64.tar.gz"
       }
     ]
   }
