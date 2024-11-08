@@ -26,7 +26,14 @@ class macOSPythonBuilder : NixPythonBuilder {
         [string] $platform
     ) : Base($version, $architecture, $platform) { }
 
-  
+    [void] PrepareEnvironment() {
+        <#
+        .SYNOPSIS
+        Prepare system environment by installing dependencies and required packages.
+        #>
+        
+       
+    }
 
     [void] Configure() {
         <#
