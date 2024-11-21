@@ -33,12 +33,11 @@ class macOSPythonBuilder : NixPythonBuilder {
         #>
         
         if ($this.Version -eq "3.7.17") {
-            # We have preinstalled ncurses and readLine on the hoster runners. But we need to install bzip2 for 
-            # setting up an environemnt 
-            # If we get any issues realted to ncurses or readline we can try to run this command
-            # brew install ncurses readline
-            Execute-Command -Command "brew install bzip2"
-        }
+    # Ensure zlib and bzip2 are installed for compression support
+    Execute-Command -Command "brew install zlib bzip2"
+    # If issues persist with ncurses or readline, install those as well
+    Execute-Command -Command "brew install ncurses readline"
+}
     }
 
     [void] Configure() {
@@ -67,27 +66,24 @@ class macOSPythonBuilder : NixPythonBuilder {
         ### Solution is to install these libraries from a third-party package manager,
         ### and then add the appropriate paths for the header and library files to configure command.
         ### Link to documentation (https://cpython-devguide.readthedocs.io/setup/#build-dependencies)
-        if ($this.Version -lt "3.7.0") {
-            $env:LDFLAGS = "-L/usr/local/opt/openssl@3/lib -L/usr/local/opt/zlib/lib"
-            $env:CFLAGS = "-I/usr/local/opt/openssl@3/include -I/usr/local/opt/zlib/include"
-        } else {
-            $configureString += " --with-openssl=/usr/local/opt/openssl@3"
+        # Ensure zlib is linked correctly during the build process for Python 3.7.x
+if ($this.Version -eq "3.7.2" -or $this.Version -eq "3.7.3" -or $this.Version -eq "3.7.17") {
+    # Link zlib library
+    $env:LDFLAGS = "-L/usr/local/opt/zlib/lib"
+    $env:CFLAGS = "-I/usr/local/opt/zlib/include"
+}
 
-            # For Python 3.7.2 and 3.7.3 we need to provide PATH for zlib to pack it properly. Otherwise the build will fail
-            # with the error: zipimport.ZipImportError: can't decompress data; zlib not available
-            if ($this.Version -eq "3.7.2" -or $this.Version -eq "3.7.3" -or $this.Version -eq "3.7.17") {
-                $env:LDFLAGS = "-L/usr/local/opt/zlib/lib"
-                $env:CFLAGS = "-I/usr/local/opt/zlib/include"
-            }
+# Handle versions greater than 3.7.12
+if ($this.Version -gt "3.7.12") {
+    $configureString += " --with-tcltk-includes='-I /usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
+}
 
-            if ($this.Version -gt "3.7.12") {
-                $configureString += " --with-tcltk-includes='-I /usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
-	        }
-
-            if ($this.Version -eq "3.7.17") {
-                $env:LDFLAGS += " -L$(brew --prefix bzip2)/lib -L$(brew --prefix readline)/lib -L$(brew --prefix ncurses)/lib"
-                $env:CFLAGS += " -I$(brew --prefix bzip2)/include -I$(brew --prefix readline)/include -I$(brew --prefix ncurses)/include"
-            }
+# Handle specific version 3.7.17
+if ($this.Version -eq "3.7.17") {
+    # Link zlib along with other libraries
+    $env:LDFLAGS += " -L$(brew --prefix bzip2)/lib -L$(brew --prefix readline)/lib -L$(brew --prefix ncurses)/lib -L/usr/local/opt/zlib/lib"
+    $env:CFLAGS += " -I$(brew --prefix bzip2)/include -I$(brew --prefix readline)/include -I$(brew --prefix ncurses)/include -I/usr/local/opt/zlib/include"
+}
         }
 
         ### Compile with support of loadable sqlite extensions. Unavailable for Python 2.*
