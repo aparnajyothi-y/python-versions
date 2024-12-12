@@ -28,10 +28,10 @@ if [ ! -d $PYTHON_TOOLCACHE_PATH ]; then
     echo "Creating Python hostedtoolcache folder..."
     mkdir -p $PYTHON_TOOLCACHE_PATH
 else
-    # remove ALL other directories for same major.minor python versions
-    find $PYTHON_TOOLCACHE_PATH -name "${MAJOR_VERSION}.${MINOR_VERSION}.*"|while read python_version;do
+    # Remove ALL other directories for same major.minor Python versions
+    find $PYTHON_TOOLCACHE_PATH -name "${MAJOR_VERSION}.${MINOR_VERSION}.*" | while read python_version; do
         python_version_arch="$python_version/$ARCH"
-        if [ -e "$python_version_arch" ];then
+        if [ -e "$python_version_arch" ]; then
             echo "Deleting Python $python_version_arch"
             rm -rf "$python_version_arch"
         fi
@@ -41,11 +41,24 @@ fi
 echo "Install Python binaries from prebuilt package"
 sudo installer -pkg $PYTHON_PKG_NAME -target /
 
-echo "Create hostedtoolcach symlinks (Required for the backward compatibility)"
+# Check if the Python installation was successful and the required directories exist
+if [ ! -d "$PYTHON_FRAMEWORK_PATH/bin" ]; then
+    echo "Error: Expected 'bin' directory in $PYTHON_FRAMEWORK_PATH, but it doesn't exist."
+    exit 1
+fi
+
+echo "Create hostedtoolcache symlinks (Required for backward compatibility)"
 echo "Create Python $PYTHON_FULL_VERSION folder"
 mkdir -p $PYTHON_TOOLCACHE_VERSION_ARCH_PATH
 cd $PYTHON_TOOLCACHE_VERSION_ARCH_PATH
 
+# Ensure 'bin' directory exists before creating symlinks
+if [ ! -d "$PYTHON_FRAMEWORK_PATH/bin" ]; then
+    echo "Creating missing bin directory..."
+    mkdir -p "$PYTHON_FRAMEWORK_PATH/bin"
+fi
+
+# Create symlinks for framework components
 ln -s "${PYTHON_FRAMEWORK_PATH}/bin" bin
 ln -s "${PYTHON_FRAMEWORK_PATH}/include" include
 ln -s "${PYTHON_FRAMEWORK_PATH}/share" share
@@ -62,6 +75,7 @@ if [ ! -f $PYTHON_MAJOR_MINOR ]; then
     ln -s $PYTHON_MAJOR_DOT_MINOR $PYTHON_MAJOR_MINOR
 fi
 
+# Create symlink for 'python' if it doesn't exist
 if [ ! -f python ]; then
     ln -s $PYTHON_MAJOR_DOT_MINOR python
 fi
