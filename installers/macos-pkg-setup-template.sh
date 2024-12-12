@@ -46,10 +46,16 @@ if [[ "$PYTHON_FULL_VERSION" == "3.8.2" ]] || { [[ "$PYTHON_FULL_VERSION" > "3.8
     echo "Install Python binaries from prebuilt package"
     sudo installer -pkg $PYTHON_PKG_NAME -target /
 
-    # Check if the Python installation was successful and the required directories exist
+    # Debug: Check if the Python binary and 'bin' directory are installed
+    echo "Verifying Python installation..."
     if [ ! -d "$PYTHON_FRAMEWORK_PATH/bin" ]; then
         echo "Error: Expected 'bin' directory in $PYTHON_FRAMEWORK_PATH, but it doesn't exist."
+        echo "Attempting to find the Python installation directories..."
+        find / -name python  # This will show where Python binaries are installed
+        find / -name bin  # This will show if 'bin' exists anywhere
         exit 1
+    else
+        echo "Python bin directory found."
     fi
 
     echo "Create hostedtoolcache symlinks (Required for backward compatibility)"
