@@ -154,6 +154,10 @@ jobs:
         working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
       - name: Setup Python ${{ env.VERSION }}
+        if: >
+          !(runner.os == 'Windows' &&
+            matrix.arch == 'arm64' &&
+            startsWith(env.VERSION, '3.12'))
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.VERSION }}
