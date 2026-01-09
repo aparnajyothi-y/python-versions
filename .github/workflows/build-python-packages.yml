@@ -20,14 +20,14 @@ on:
       PLATFORMS:
         description: 'Platforms for execution in "os" or "os_arch" format (arch is "x64" by default)'
         required: true
-        default: 'ubuntu-22.04,ubuntu-22.04_arm64,ubuntu-24.04,ubuntu-24.04_arm64,macos-15-intel_x64,macos-14_arm64,windows-2022_x64,windows-2022_x86,windows-11-arm64'
+        default: 'ubuntu-22.04,ubuntu-22.04_arm64,ubuntu-24.04,ubuntu-24.04_arm64,macos-15-intel_x64,macos-14_arm64,windows-2022_x64,windows-2022_x86,windows-11_arm64'
   pull_request:
     paths-ignore:
-      - 'versions-manifest.json'
-      - 'LICENSE'
-      - '**.md'
+    - 'versions-manifest.json'
+    - 'LICENSE'
+    - '**.md'
     branches:
-      - 'main'
+    - 'main'
 
 env:
   VERSION: ${{ inputs.VERSION || '3.13.7' }}
@@ -44,7 +44,7 @@ jobs:
       - name: Generate execution matrix
         id: generate-matrix
         run: |
-          [String[]]$configurations = "${{ inputs.platforms || 'ubuntu-22.04,ubuntu-22.04_arm64,ubuntu-24.04,ubuntu-24.04_arm64,macos-15-intel,macos-14_arm64,windows-2022_x64,windows-2022_x86,windows-11-arm64' }}".Split(",").Trim()
+          [String[]]$configurations = "${{ inputs.platforms || 'ubuntu-22.04,ubuntu-22.04_arm64,ubuntu-24.04,ubuntu-24.04_arm64,macos-15-intel,macos-14_arm64,windows-2022_x64,windows-2022_x86,windows-11_arm64' }}".Split(",").Trim()
           [String[]]$buildModes = "${{ inputs.threading_build_modes || 'default' }}".Split(",").Trim()
           $matrix = @()
           
@@ -147,15 +147,13 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           if ('${{ matrix.platform }}' -eq 'win32') {
             powershell ./setup.ps1
-          } else {
-            sh ./setup.sh
-            cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
-          }
+            } else {
+              sh ./setup.sh
+              cp ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}/build_output.txt ${{ runner.temp }}
+            }
         working-directory: ${{ runner.temp }}/${{ env.ARTIFACT_NAME }}
 
       - name: Setup Python ${{ env.VERSION }}
-        # Skip setup-python for Windows ARM64 3.12.x because prebuilt artifact is used
-        if: ${{ runner.os != 'Windows' || matrix.arch != 'arm64' || !startsWith(env.VERSION, '3.12') }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.VERSION }}
@@ -192,11 +190,11 @@ jobs:
         working-directory: ${{ github.workspace }}/tests
 
   publish_release:
-    name: Publish release
-    if: github.event_name == 'workflow_dispatch' && inputs.PUBLISH_RELEASES
-    needs: test_python
-    runs-on: ubuntu-latest
-    steps:
+      name: Publish release
+      if: github.event_name == 'workflow_dispatch' && inputs.PUBLISH_RELEASES
+      needs: test_python
+      runs-on: ubuntu-latest
+      steps:
       - uses: actions/download-artifact@v4
 
       - name: Publish Release ${{ env.VERSION }}
@@ -213,7 +211,7 @@ jobs:
       - name: Generate hash for packages
         run: |
           $childItems = Get-Childitem -Path '.'
-          $childItems | ForEach-Object {
+          $childItems | Foreach-Object {
             $packageObj = Get-Childitem -Path $_.FullName | Select-Object -First 1
             Write-Host "Package: $($packageObj.Name)"
             $actualHash = (Get-FileHash -Path $packageObj.FullName -Algorithm sha256).Hash
@@ -221,7 +219,7 @@ jobs:
             Write-Host "$hashString"
             Add-Content -Path ./hashes.sha256 -Value "$hashString"
           } 
-
+  
       - name: Upload release assets
         uses: actions/github-script@v7
         with:
@@ -246,14 +244,14 @@ jobs:
     needs: publish_release
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger "Create Pull Request" workflow
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'create-pr.yml',
-              ref: 'main'
-            })
+    - name: Trigger "Create Pull Request" workflow
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'create-pr.yml',
+            ref: 'main'
+          });
