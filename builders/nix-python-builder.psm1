@@ -5,6 +5,7 @@ class NixPythonBuilder : PythonBuilder {
     [string] $InstallationTemplateName
     [string] $InstallationScriptName
     [string] $OutputArtifactName
+    [string] $PinnedBzip2Version = "1.0.8"
 
     NixPythonBuilder(
         [semver] $version,
@@ -39,21 +40,45 @@ class NixPythonBuilder : PythonBuilder {
         return $expandedSourceLocation
     }
 
+    [string] BuildPinnedBzip2() {
+        Write-Host "Building pinned libbz2 $($this.PinnedBzip2Version)"
+
+        $bz2Url = "https://sourceware.org/pub/bzip2/bzip2-$($this.PinnedBzip2Version).tar.gz"
+        $bz2Root = Join-Path $this.TempFolderLocation "bzip2"
+        $bz2Prefix = Join-Path $bz2Root "install"
+
+        New-Item -ItemType Directory -Path $bz2Root -Force | Out-Null
+
+        $archive = Download-File -Uri $bz2Url -OutputFolder $bz2Root
+        Extract-TarArchive -ArchivePath $archive -OutputDirectory $bz2Root
+
+        Push-Location (Join-Path $bz2Root "bzip2-$($this.PinnedBzip2Version)")
+
+        Execute-Command -Command "make -f Makefile-libbz2_so" -ErrorAction Stop
+        Execute-Command -Command "make clean" -ErrorAction Continue
+        Execute-Command -Command "make" -ErrorAction Stop
+
+        New-Item -ItemType Directory -Path $bz2Prefix -Force | Out-Null
+        Copy-Item -Path "libbz2.so*" -Destination $bz2Prefix -Force
+        Copy-Item -Path "bzlib.h" -Destination $bz2Prefix -Force
+
+        Pop-Location
+
+        return $bz2Prefix
+    }
+
     [void] Configure() {
-        Write-Host "Configuring Python build"
+        Write-Host "Configuring Python with pinned libbz2"
 
-        $isLinuxArm =
-            $this.Platform -eq "linux" -and
-            $this.Architecture -match "arm"
+        $bz2Prefix = $this.BuildPinnedBzip2()
 
-        if ($isLinuxArm) {
-            Write-Host "Linux ARM detected → disabling PGO (--enable-optimizations)"
-            Execute-Command -Command "./configure --enable-shared" -ErrorAction Stop
-        }
-        else {
-            Write-Host "Non-ARM or non-Linux platform → enabling PGO"
-            Execute-Command -Command "./configure --enable-shared --enable-optimizations" -ErrorAction Stop
-        }
+        $env:CFLAGS   = "-I$bz2Prefix"
+        $env:LDFLAGS  = "-L$bz2Prefix"
+        $env:LD_LIBRARY_PATH = $bz2Prefix
+
+        Execute-Command `
+            -Command "./configure --enable-shared --enable-optimizations" `
+            -ErrorAction Stop
     }
 
     [void] Make() {
