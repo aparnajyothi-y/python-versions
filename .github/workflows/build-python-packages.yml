@@ -173,6 +173,11 @@ jobs:
           $pythonLocation = which python
           if ('${{ matrix.platform }}' -eq 'darwin') { otool -L $pythonLocation } else { ldd $pythonLocation }
 
+      - name: Export pinned libbz2 runtime path
+        if: runner.os == 'Linux'
+        run: |
+           echo "LD_LIBRARY_PATH=$RUNNER_TEMP/bzip2/install:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
       - name: Run tests
         run: |
             Install-Module Pester -Force -Scope CurrentUser -SkipPublisherCheck
