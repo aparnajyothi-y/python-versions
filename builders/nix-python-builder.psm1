@@ -12,8 +12,8 @@ class NixPythonBuilder : PythonBuilder {
         [string] $platform
     ) : Base($version, $architecture, $platform) {
         $this.InstallationTemplateName = "nix-setup-template.sh"
-        $this.InstallationScriptName = "setup.sh"
-        $this.OutputArtifactName = "python-$Version-$Platform-$Architecture.tar.gz"
+        $this.InstallationScriptName   = "setup.sh"
+        $this.OutputArtifactName       = "python-$Version-$Platform-$Architecture.tar.gz"
     }
 
     [uri] GetSourceUri() {
@@ -32,82 +32,53 @@ class NixPythonBuilder : PythonBuilder {
         Write-Host "Sources URI: $sourceUri"
 
         $archiveFilepath = Download-File -Uri $sourceUri -OutputFolder $this.WorkFolderLocation
-        $expandedSourceLocation = Join-Path -Path $this.TempFolderLocation -ChildPath "SourceCode"
-        New-Item -Path $expandedSourceLocation -ItemType Directory | Out-Null
+        $expandedSourceLocation = Join-Path $this.TempFolderLocation "SourceCode"
+        New-Item -Path $expandedSourceLocation -ItemType Directory -Force | Out-Null
 
         Extract-TarArchive -ArchivePath $archiveFilepath -OutputDirectory $expandedSourceLocation
-        Write-Debug "Done; Sources location: $expandedSourceLocation"
-
         return $expandedSourceLocation
     }
 
-    [void] CreateInstallationScript() {
-        $installationScriptLocation = New-Item -Path $this.WorkFolderLocation `
-                                               -Name $this.InstallationScriptName `
-                                               -ItemType File
+    [void] Configure() {
+        Write-Host "Configuring Python build"
 
-        $installationTemplateLocation = Join-Path `
-            -Path $this.InstallationTemplatesLocation `
-            -ChildPath $this.InstallationTemplateName
+        $isLinuxArm =
+            $this.Platform -eq "linux" -and
+            $this.Architecture -match "arm"
 
-        $installationTemplateContent = Get-Content -Path $installationTemplateLocation -Raw
-
-        $variablesToReplace = @{
-            "{{__VERSION_FULL__}}" = $this.Version
-            "{{__ARCH__}}"         = $this.Architecture
+        if ($isLinuxArm) {
+            Write-Host "Linux ARM detected → disabling PGO (--enable-optimizations)"
+            Execute-Command -Command "./configure --enable-shared" -ErrorAction Stop
         }
-
-        foreach ($key in $variablesToReplace.Keys) {
-            $installationTemplateContent =
-                $installationTemplateContent.Replace($key, $variablesToReplace[$key])
+        else {
+            Write-Host "Non-ARM or non-Linux platform → enabling PGO"
+            Execute-Command -Command "./configure --enable-shared --enable-optimizations" -ErrorAction Stop
         }
-
-        $installationTemplateContent | Out-File -FilePath $installationScriptLocation
-        Write-Debug "Done; Installation script location: $installationScriptLocation"
     }
 
     [void] Make() {
         Write-Debug "make Python $($this.Version)-$($this.Architecture) $($this.Platform)"
-        $buildOutputLocation = New-Item `
-            -Path $this.WorkFolderLocation `
-            -Name "build_output.txt" `
-            -ItemType File
 
-        # ------------------------------------------------------------------
-        # Workaround Option 2:
-        # Skip only the failing bz2 test during PGO on Linux ARM
-        # ------------------------------------------------------------------
-
-        $isLinux = $this.Platform -like "linux*"
-        $isArm   = $this.Architecture -match "arm"
-        $isPGO   = (
-            $env:PROFILE_TASK -ne $null -or
-            $env:MAKEFLAGS -match "profile"
-        )
-
-        Write-Debug "Build context:"
-        Write-Debug "  Platform     : $($this.Platform)"
-        Write-Debug "  Architecture : $($this.Architecture)"
-        Write-Debug "  PROFILE_TASK : $($env:PROFILE_TASK)"
-        Write-Debug "  MAKEFLAGS    : $($env:MAKEFLAGS)"
-
-        if ($isLinux -and $isArm -and $isPGO) {
-            Write-Host "Applying targeted workaround:"
-            Write-Host "  Skipping test_bz2.TestBZ2Decompressor.testDecompressorChunksMaxsize during PGO on Linux ARM"
-
-            # Skip ONLY the failing test (not the whole module)
-            $env:TESTOPTS = "-x test_bz2.TestBZ2Decompressor.testDecompressorChunksMaxsize"
-        }
-
+        $buildOutputLocation = Join-Path $this.WorkFolderLocation "build_output.txt"
         Execute-Command -Command "make 2>&1 | tee $buildOutputLocation" -ErrorAction Continue
         Execute-Command -Command "make install" -ErrorAction Continue
-
-        Write-Debug "Done; Make log location: $buildOutputLocation"
     }
 
     [void] CopyBuildResults() {
         $buildFolder = $this.GetFullPythonToolcacheLocation()
-        Move-Item -Path "$buildFolder/*" -Destination $this.WorkFolderLocation
+        Move-Item -Path "$buildFolder/*" -Destination $this.WorkFolderLocation -Force
+    }
+
+    [void] CreateInstallationScript() {
+        $installationScriptLocation = Join-Path $this.WorkFolderLocation $this.InstallationScriptName
+        $installationTemplateLocation = Join-Path $this.InstallationTemplatesLocation $this.InstallationTemplateName
+
+        $content = Get-Content $installationTemplateLocation -Raw
+        $content = $content.Replace("{{__VERSION_FULL__}}", $this.Version)
+        $content = $content.Replace("{{__ARCH__}}", $this.Architecture)
+
+        $content | Out-File $installationScriptLocation -Encoding utf8
+        chmod +x $installationScriptLocation
     }
 
     [void] ArchiveArtifact() {
@@ -116,37 +87,26 @@ class NixPythonBuilder : PythonBuilder {
     }
 
     [void] Build() {
-        Write-Host "Prepare Python Hostedtoolcache location..."
+        Write-Host "Prepare Python hostedtoolcache location"
         $this.PreparePythonToolcacheLocation()
 
-        Write-Host "Prepare system environment..."
+        Write-Host "Prepare system environment"
         $this.PrepareEnvironment()
 
-        Write-Host "Download Python $($this.Version)[$($this.Architecture)] sources..."
+        Write-Host "Download Python $($this.Version) [$($this.Architecture)]"
         $sourcesLocation = $this.Download()
 
-        Push-Location -Path $sourcesLocation
-
-        Write-Host "Configure for $($this.Platform)..."
+        Push-Location $sourcesLocation
         $this.Configure()
-
-        Write-Host "Make for $($this.Platform)..."
         $this.Make()
-
         Pop-Location
 
-        Write-Host "Generate structure dump"
         New-ToolStructureDump `
             -ToolPath $this.GetFullPythonToolcacheLocation() `
             -OutputFolder $this.WorkFolderLocation
 
-        Write-Host "Copying build results to destination location"
         $this.CopyBuildResults()
-
-        Write-Host "Create installation script..."
         $this.CreateInstallationScript()
-
-        Write-Host "Archive artifact..."
         $this.ArchiveArtifact()
     }
 }
